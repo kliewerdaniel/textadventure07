@@ -33,8 +33,21 @@
     </div>
   </div>
   <script>
-    // Redirect to the app
-    window.location.href = '/app';
+    // Check if we're on a story page
+    if (window.location.pathname.startsWith('/stories/')) {
+      // Get the session ID from localStorage
+      const sessionId = localStorage.getItem('currentSessionId');
+      if (sessionId) {
+        // Redirect to the view page with the session ID
+        window.location.href = `/view?session=${sessionId}`;
+      } else {
+        // Redirect to the home page
+        window.location.href = '/';
+      }
+    } else if (window.location.pathname === '/') {
+      // Redirect to the app
+      window.location.href = '/app';
+    }
   </script>
 </body>
 </html>

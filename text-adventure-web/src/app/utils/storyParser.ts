@@ -161,7 +161,8 @@ export function formatStoryContent(content: string): string {
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Replace **bold**
     .replace(/\*(.*?)\*/g, '<em>$1</em>') // Replace *italic*
     .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="my-4 rounded-lg max-w-full h-auto" />') // Replace images
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>') // Replace links
+    .replace(/\[(.*?)\]\((\/stories\/.*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline story-link">$1</a>') // Replace story links
+    .replace(/\[(.*?)\]\(((?!\/stories\/).*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>') // Replace other links
     .replace(/^- (.*?)$/gm, '<li>$1</li>') // Replace list items
     .replace(/<li>(.*?)<\/li>\n<li>/g, '<li>$1</li>\n<li>') // Group list items
     .replace(/(<li>.*?<\/li>\n)+/g, '<ul class="list-disc pl-5 my-3">$&</ul>') // Wrap lists

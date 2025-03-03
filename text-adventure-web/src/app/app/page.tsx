@@ -62,23 +62,75 @@ export default function AppPage() {
       formData.append("narrativeStyle", narrativeStyle);
       formData.append("storyLength", storyLength.toString());
       
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        body: formData,
-      });
+      // Set a timeout for the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
       
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal
+        });
+        
+        // Clear the timeout
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Check if we have valid story segments
+        if (data.storySegments && data.storySegments.length > 0) {
+          setResult(data.output);
+          setStoryData(parseStoryOutput(data.output));
+          setGeneratedStoryData(data);
+          setViewMode("interactive");
+          
+          // Store the session ID in localStorage
+          if (data.sessionId) {
+            localStorage.setItem('currentSessionId', data.sessionId);
+          }
+        } else {
+          // If no story segments were generated, show an error
+          throw new Error("No story segments were generated. The AI model may have encountered an error.");
+        }
+      } catch (fetchError: any) {
+        if (fetchError.name === 'AbortError') {
+          throw new Error("Request timed out. The story generation is taking too long. Please try again with fewer images or a shorter story length.");
+        } else {
+          throw fetchError;
+        }
       }
-      
-      const data = await response.json();
-      setResult(data.output);
-      setStoryData(parseStoryOutput(data.output));
-      setGeneratedStoryData(data);
-      setViewMode("interactive");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating adventure:", error);
-      setResult("An error occurred while generating your adventure. Please try again.");
+      setResult(`An error occurred while generating your adventure: ${error.message || "Please try again."}`);
+      
+      // Create a fallback story data object
+      const fallbackStoryData = {
+        sessionId: "error-session",
+        storySegments: [
+          {
+            filename: "index.md",
+            content: `---
+layout: story
+title: Error
+---
+
+# Error
+
+${error.message || "An error occurred while generating your adventure. Please try again."}
+
+`
+          }
+        ]
+      };
+      
+      setGeneratedStoryData(fallbackStoryData);
+      setStoryData(parseStoryOutput(error.message || "An error occurred while generating your adventure. Please try again."));
+      setViewMode("raw");
     } finally {
       setIsLoading(false);
     }

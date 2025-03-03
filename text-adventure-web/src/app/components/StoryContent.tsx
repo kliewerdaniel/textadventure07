@@ -4,26 +4,28 @@ import React, { useState, useEffect } from 'react';
 import { StorySegment, StoryData, parseStorySegments, parseMarkdownContent } from '../utils/storyParser';
 import StoryDisplay from './StoryDisplay';
 
-interface StoryViewerProps {
+interface StoryContentProps {
   storyData: {
     sessionId: string;
     storySegments: any[];
   } | null;
+  initialStoryPath?: string;
 }
 
-const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
+const StoryContent: React.FC<StoryContentProps> = ({ storyData, initialStoryPath }) => {
   const [parsedStoryData, setParsedStoryData] = useState<StoryData | null>(null);
   const [currentSegment, setCurrentSegment] = useState<StorySegment | null>(null);
   const [segmentHistory, setSegmentHistory] = useState<StorySegment[]>([]);
   const [imageBaseUrl, setImageBaseUrl] = useState<string>('');
-  
-  // Get the story path from the URL
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const storyPath = searchParams?.get('story');
-  
-  console.log('StoryViewer: storyPath =', storyPath);
+  const [storyPath, setStoryPath] = useState<string | null>(initialStoryPath || null);
+
+  console.log('StoryContent: initialStoryPath =', initialStoryPath);
+  console.log('StoryContent: storyPath =', storyPath);
 
   useEffect(() => {
+    console.log('StoryContent useEffect: storyData =', storyData);
+    console.log('StoryContent useEffect: storyPath =', storyPath);
+    
     if (storyData && storyData.storySegments) {
       // Create image base URL for this session
       if (storyData.sessionId) {
@@ -104,6 +106,15 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
     console.log(`Looking for segment with link: ${choice.link}, path: ${segmentPath}, title: ${choice.title}`);
     console.log(`Available segments:`, parsedStoryData.segments.map(s => s.title));
     console.log(`Current segment:`, currentSegment?.title);
+    
+    // Update the URL with the story path
+    const sessionId = storyData?.sessionId;
+    if (sessionId) {
+      window.history.pushState({}, '', `/view?session=${sessionId}&story=${segmentPath}`);
+    }
+    
+    // Update the story path
+    setStoryPath(segmentPath);
     
     // Special case for "index" or "start" links - return to the index page
     if (segmentPath === 'index' || segmentPath === 'start') {
@@ -205,6 +216,16 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
       newHistory.pop();
       setSegmentHistory(newHistory);
       setCurrentSegment(newHistory[newHistory.length - 1]);
+      
+      // Update the URL with the story path
+      const sessionId = storyData?.sessionId;
+      const segmentPath = newHistory[newHistory.length - 1].title.toLowerCase().replace(/\s+/g, '-');
+      if (sessionId) {
+        window.history.pushState({}, '', `/view?session=${sessionId}&story=${segmentPath}`);
+      }
+      
+      // Update the story path
+      setStoryPath(segmentPath);
     }
   };
 
@@ -212,6 +233,15 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
     if (parsedStoryData) {
       setCurrentSegment(parsedStoryData.indexSegment);
       setSegmentHistory([parsedStoryData.indexSegment]);
+      
+      // Update the URL with the story path
+      const sessionId = storyData?.sessionId;
+      if (sessionId) {
+        window.history.pushState({}, '', `/view?session=${sessionId}`);
+      }
+      
+      // Update the story path
+      setStoryPath(null);
     }
   };
 
@@ -255,4 +285,4 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
   );
 };
 
-export default StoryViewer;
+export default StoryContent;

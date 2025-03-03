@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import StoryViewer from "../components/StoryViewer";
+import StoryContent from "../components/StoryContent";
 import Link from "next/link";
 
 export default function ViewPage() {
@@ -13,12 +13,17 @@ export default function ViewPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const storyPath = searchParams.get("story");
+  
   useEffect(() => {
     const fetchStoryData = async () => {
       if (!sessionId) {
         setError("No session ID provided");
         return;
       }
+
+      // Store the session ID in localStorage so the redirect page can use it
+      localStorage.setItem('currentSessionId', sessionId);
 
       setLoading(true);
       try {
@@ -71,7 +76,7 @@ export default function ViewPage() {
             </p>
           </div>
         ) : storyData ? (
-          <StoryViewer storyData={storyData} />
+          <StoryContent storyData={storyData} initialStoryPath={storyPath || undefined} />
         ) : (
           <div className="text-center p-12">
             <p>No story data available. Please generate a story first.</p>

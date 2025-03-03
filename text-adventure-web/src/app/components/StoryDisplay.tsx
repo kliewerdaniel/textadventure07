@@ -38,6 +38,50 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ story, isLoading, onChoiceC
     }
   };
 
+  // Handle clicks on story links
+  const handleStoryLinkClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onChoiceClick) return;
+    
+    // Check if the click was on a link
+    const target = e.target as HTMLElement;
+    console.log('Click target:', target.tagName, target);
+    
+    // Find the closest anchor element (in case the click was on a child element)
+    const linkElement = target.closest('a');
+    
+    if (linkElement) {
+      // Check if the link is a story link (starts with /stories/)
+      const href = linkElement.getAttribute('href');
+      console.log('Link href:', href);
+      
+      if (href && href.startsWith('/stories/')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const link = href;
+        const title = linkElement.textContent || '';
+        console.log(`Clicked on story link: ${link} with title: ${title}`);
+        
+        // Get the session ID from localStorage
+        const sessionId = localStorage.getItem('currentSessionId');
+        
+        if (sessionId) {
+          // Update the URL with the story path
+          const storyPath = link.split('/').pop() || '';
+          window.history.pushState({}, '', `/view?session=${sessionId}&story=${storyPath}`);
+          
+          // Call the onChoiceClick handler with the link and title
+          onChoiceClick({ title, link });
+        } else {
+          // If no session ID is found, use the onChoiceClick handler
+          onChoiceClick({ title, link });
+        }
+        
+        return false;
+      }
+    }
+  };
+
   return (
     <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
       <h2 className="text-2xl font-bold mb-4">{story.title}</h2>
@@ -55,6 +99,7 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ story, isLoading, onChoiceC
       <div 
         className="prose dark:prose-invert max-w-none mb-6"
         dangerouslySetInnerHTML={{ __html: formatStoryContent(story.content) }}
+        onClick={handleStoryLinkClick}
       />
       
       {story.choices.length > 0 && (
