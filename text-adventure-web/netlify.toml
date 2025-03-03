@@ -1,0 +1,42 @@
+# Netlify configuration file
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Redirect all requests to Next.js
+[[redirects]]
+  from = "/*"
+  to = "/_next/static/:splat"
+  status = 200
+  force = false
+  conditions = {Path = "/_next/static/**"}
+
+# Handle Next.js API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/nextjs-api/:splat"
+  status = 200
+
+# Handle all other routes
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/nextjs"
+  status = 200
+
+# Environment variables
+[build.environment]
+  NEXT_PUBLIC_SITE_URL = "https://text-adventure-generator.netlify.app"
+
+# Functions configuration
+[functions]
+  directory = ".netlify/functions"
+  node_bundler = "esbuild"
+
+# For handling large file uploads
+[build.processing.images]
+  compress = true
+
+# Plugin for Next.js on Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

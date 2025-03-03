@@ -1,0 +1,10 @@
+Starting test script...
+Creating test directories...
+Running Python script...
+  File "/Users/danielkliewer/textadventure02/main.py", line 286
+    """
+       ^
+SyntaxError: f-string expression part cannot include a backslash
+Python script finished with exit code: 1
+Python script execution failed with exit code 1
+Test script completed.

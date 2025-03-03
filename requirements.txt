@@ -1,0 +1,7 @@
+ollama>=0.1.16
+pathlib>=1.0.1
+typing>=3.7.4.3
+requests>=2.28.0
+tqdm>=4.65.0
+pillow>=9.5.0  # For additional image processing capabilities
+pyyaml>=6.0    # For alternative configuration format support
