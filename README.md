@@ -8,6 +8,8 @@ This is a web application that allows users to generate interactive text adventu
 
 ![03](03.png)
 
+![04](04.png)
+
 ## Features
 
 - **Image Upload**: Upload one or more images to generate your adventure
