@@ -2,6 +2,10 @@
 
 This is a web application that allows users to generate interactive text adventures from images. The application uses Next.js for the frontend and integrates with a Python script for generating the text adventures.
 
+![02](02.png)
+
+![01](01.png)
+
 ## Features
 
 - **Image Upload**: Upload one or more images to generate your adventure
