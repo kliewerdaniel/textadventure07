@@ -65,16 +65,21 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ storyData }) => {
     // Links are in the format /stories/segment-name
     const segmentPath = choice.link.split('/').pop() || '';
     
-    // Find the segment with the matching filename
-    // We need to add .md extension back since we removed it in the link
-    const targetSegment = parsedStoryData.segments.find(segment => 
-      segment.title.toLowerCase() === choice.title.toLowerCase()
-    );
+    // First try to find the segment by matching the segment name from the link
+    // If the link is /stories/forest-encounter, we look for a segment with a filename like forest-encounter.md
+    let targetSegment = parsedStoryData.segments.find(segment => {
+      // Extract filename without extension
+      const filename = segment.title.toLowerCase().replace(/\s+/g, '-');
+      return filename === segmentPath.toLowerCase() || 
+             // Also try matching by title as a fallback
+             segment.title.toLowerCase() === choice.title.toLowerCase();
+    });
 
     if (targetSegment) {
       setCurrentSegment(targetSegment);
       setSegmentHistory(prev => [...prev, targetSegment]);
     } else {
+      console.warn(`Could not find segment for link: ${choice.link} with title: ${choice.title}`);
       // If we can't find the segment, go back to the index
       setCurrentSegment(parsedStoryData.indexSegment);
       setSegmentHistory(prev => [...prev, parsedStoryData.indexSegment]);
