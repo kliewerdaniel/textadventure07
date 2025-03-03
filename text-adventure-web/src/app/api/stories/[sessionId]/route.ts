@@ -11,7 +11,8 @@ export async function GET(
   { params }: { params: { sessionId: string } }
 ) {
   try {
-    const sessionId = params.sessionId;
+    // Ensure params is properly awaited
+    const { sessionId } = params;
     
     // Validate session ID format
     if (!sessionId || !/^[a-zA-Z0-9-]+$/.test(sessionId)) {

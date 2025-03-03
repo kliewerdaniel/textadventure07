@@ -11,8 +11,8 @@ export async function GET(
   { params }: { params: { sessionId: string; filename: string } }
 ) {
   try {
-    const sessionId = params.sessionId;
-    const filename = params.filename;
+    // Ensure params is properly awaited
+    const { sessionId, filename } = params;
     
     // Validate session ID format
     if (!sessionId || !/^[a-zA-Z0-9-]+$/.test(sessionId)) {
